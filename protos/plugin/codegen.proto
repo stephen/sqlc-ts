@@ -1,9 +1,8 @@
-// https://github.com/kyleconroy/sqlc/blob/main/protos/plugin/codegen.proto
 syntax = "proto3";
 
 package plugin;
 
-option go_package = "github.com/stephen/sqlc-sql.js/internal/plugin";
+option go_package = "github.com/kyleconroy/sqlc/internal/plugin";
 
 message File
 {
@@ -45,7 +44,6 @@ message ParsedGoType
   string package = 2;
   string type_name = 3;
   bool basic_type = 4;
-  map<string, string> struct_tags = 5;
 }
 
 message Settings
@@ -56,20 +54,11 @@ message Settings
   repeated string queries = 4 [json_name="queries"];
   map<string, string> rename = 5 [json_name="rename"];
   repeated Override overrides = 6 [json_name="overrides"];
-  Codegen codegen = 12 [json_name="codegen"];
 
   // TODO: Refactor codegen settings
   PythonCode python = 8;
   KotlinCode kotlin = 9;
   GoCode go = 10;
-  JSONCode json = 11;
-}
-
-message Codegen
-{
-  string out = 1 [json_name="out"];
-  string plugin = 2 [json_name="plugin"];
-  bytes options = 3 [json_name="options"];
 }
 
 message PythonCode
@@ -79,7 +68,6 @@ message PythonCode
   bool emit_async_querier = 3;
   string package = 4;
   string out = 5;
-  bool emit_pydantic_models = 6;
 }
 
 message KotlinCode
@@ -109,15 +97,6 @@ message GoCode
   string output_models_file_name = 16;
   string output_querier_file_name = 17;
   string output_files_suffix = 18;
-  bool emit_enum_valid_method = 19;
-  bool emit_all_enum_values = 20;
-}
-
-message JSONCode
-{
-  string out = 1;
-  string indent = 2;
-  string filename = 3;
 }
 
 message Catalog
@@ -179,6 +158,7 @@ message Column
   Identifier table = 10;
   string table_alias = 11;
   Identifier type = 12;
+  string data_type = 13;
 }
 
 message Query
@@ -204,7 +184,6 @@ message CodeGenRequest
   Settings settings = 1 [json_name="settings"];
   Catalog catalog = 2 [json_name="catalog"];
   repeated Query queries = 3 [json_name="queries"];
-  string sqlc_version = 4 [json_name="sqlc_version"];
 }
 
 message CodeGenResponse

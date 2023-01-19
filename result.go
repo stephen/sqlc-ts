@@ -42,18 +42,12 @@ func buildEnums(req *plugin.CodeGenRequest) []Enum {
 	return enums
 }
 
-func buildStructs(req *plugin.CodeGenRequest) ([]Struct, error) {
+func buildStructs(req *plugin.CodeGenRequest) []Struct {
 	var structs []Struct
 	for _, schema := range req.Catalog.Schemas {
 		for _, table := range schema.Tables {
-			var tableName string
-			if schema.Name == req.Catalog.DefaultSchema {
-				tableName = table.Rel.Name
-			} else {
-				return nil, fmt.Errorf("sql.js does not support non-default schema")
-			}
 			// XXX: go codegen has req.Settings.Go.EmitExactTableNames knob.
-			structName := inflection.Singular(tableName)
+			structName := inflection.Singular(table.Rel.Name)
 			s := Struct{
 				Table:   plugin.Identifier{Schema: schema.Name, Name: table.Rel.Name},
 				Name:    StructName(structName, req.Settings),
@@ -80,7 +74,7 @@ func buildStructs(req *plugin.CodeGenRequest) ([]Struct, error) {
 	if len(structs) > 0 {
 		sort.Slice(structs, func(i, j int) bool { return structs[i].Name < structs[j].Name })
 	}
-	return structs, nil
+	return structs
 }
 
 func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error) {
