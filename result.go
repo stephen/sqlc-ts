@@ -10,6 +10,38 @@ import (
 	"github.com/stephen/sqlc-sql.js/internal/sdk"
 )
 
+func buildEnums(req *plugin.CodeGenRequest) []Enum {
+	var enums []Enum
+	for _, schema := range req.Catalog.Schemas {
+		for _, enum := range schema.Enums {
+			var enumName string
+			enumName = enum.Name
+			e := Enum{
+				Name:    StructName(enumName, req.Settings),
+				Comment: enum.Comment,
+			}
+			seen := make(map[string]struct{}, len(enum.Vals))
+			for i, v := range enum.Vals {
+				value := EnumReplace(v)
+				if _, found := seen[value]; found || value == "" {
+					value = fmt.Sprintf("value_%d", i)
+				}
+				e.Constants = append(e.Constants, Constant{
+					Name:  StructName(enumName+"_"+value, req.Settings),
+					Value: v,
+					Type:  e.Name,
+				})
+				seen[value] = struct{}{}
+			}
+			enums = append(enums, e)
+		}
+	}
+	if len(enums) > 0 {
+		sort.Slice(enums, func(i, j int) bool { return enums[i].Name < enums[j].Name })
+	}
+	return enums
+}
+
 func buildStructs(req *plugin.CodeGenRequest) ([]Struct, error) {
 	var structs []Struct
 	for _, schema := range req.Catalog.Schemas {
