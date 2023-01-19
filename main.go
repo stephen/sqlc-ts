@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/jinzhu/inflection"
@@ -9,26 +10,23 @@ import (
 
 func main() {
 	req := &plugin.CodeGenRequest{}
+	// XXX: fail on req.Settings.Engine
+	// XXX: fail on type overrides
 	buildStructs(req)
 }
 
-func buildStructs(req *plugin.CodeGenRequest) []Struct {
+func buildStructs(req *plugin.CodeGenRequest) ([]Struct, error) {
 	var structs []Struct
 	for _, schema := range req.Catalog.Schemas {
-		if schema.Name == "pg_catalog" {
-			continue
-		}
 		for _, table := range schema.Tables {
 			var tableName string
 			if schema.Name == req.Catalog.DefaultSchema {
 				tableName = table.Rel.Name
 			} else {
-				tableName = schema.Name + "_" + table.Rel.Name
+				return nil, fmt.Errorf("sql.js does not support non-default schema")
 			}
-			structName := tableName
-			if !req.Settings.Go.EmitExactTableNames {
-				structName = inflection.Singular(structName)
-			}
+			// XXX: go codegen has req.Settings.Go.EmitExactTableNames knob.
+			structName := inflection.Singular(tableName)
 			s := Struct{
 				Table:   plugin.Identifier{Schema: schema.Name, Name: table.Rel.Name},
 				Name:    StructName(structName, req.Settings),
@@ -43,8 +41,8 @@ func buildStructs(req *plugin.CodeGenRequest) []Struct {
 					tags["json:"] = JSONTagName(column.Name, req.Settings)
 				}
 				s.Fields = append(s.Fields, Field{
-					Name: StructName(column.Name, req.Settings),
-					// Type:    goType(req, column),
+					Name:    StructName(column.Name, req.Settings),
+					Type:    tsType(req, column),
 					Tags:    tags,
 					Comment: column.Comment,
 				})
@@ -55,5 +53,5 @@ func buildStructs(req *plugin.CodeGenRequest) []Struct {
 	if len(structs) > 0 {
 		sort.Slice(structs, func(i, j int) bool { return structs[i].Name < structs[j].Name })
 	}
-	return structs
+	return structs, nil
 }
