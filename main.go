@@ -11,7 +11,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error generating JSON: %s", err)
+		fmt.Fprintf(os.Stderr, "error generating typescript: %s", err)
 		os.Exit(2)
 	}
 }
