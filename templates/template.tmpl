@@ -32,8 +32,8 @@ export type {{.Ret.Type}} = { {{- range .Ret.Struct.Fields}}
 {{end -}}
 export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}} | null {
   const result = db.exec({{.ConstantName}}, [id])
-  if (!Array.isArray(result) || result.length !== 1) {
-    throw new Error("expected exec() to return a query result")
+  if (result.length !== 1) {
+    throw new Error("expected exec() to return a single query result")
   }
 
   const queryResult = result[0];
@@ -56,8 +56,8 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
 {{end -}}
 export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}}[] {
   const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])
-  if (!Array.isArray(result) || result.length !== 1) {
-    throw new Error("expected exec() to return a query result")
+  if (result.length !== 1) {
+    throw new Error("expected exec() to return a single query result")
   }
 
   const queryResult = result[0];
@@ -89,6 +89,10 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): void {
 {{end -}}
 export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): number {
   const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])
+  if (result.length !== 1) {
+    throw new Error("expected exec() to return a single query result")
+  }
+
   return result[0].values.length;
 }
 {{end}}
@@ -97,7 +101,12 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): number {
 {{range .Comments}}//{{.}}
 {{end -}}
 export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): QueryExecResult {
-  return db.exec({{.ConstantName}}, [{{.Arg.Params}}])
+  const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])[0]
+  if (result.length !== 1) {
+    throw new Error("expected exec() to return a single query result")
+  }
+
+  return result[0];
 }
 {{end}}
 
