@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/stephen/sqlc-sql.js/internal/plugin"
+	"github.com/stephen/sqlc-ts/internal/plugin"
 )
 
 func main() {

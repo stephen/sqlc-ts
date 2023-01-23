@@ -1,4 +1,4 @@
-module github.com/stephen/sqlc-sql.js
+module github.com/stephen/sqlc-ts
 
 go 1.19
 

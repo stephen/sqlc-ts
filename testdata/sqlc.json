@@ -4,7 +4,7 @@
     {
       "name": "ts",
       "process": {
-        "cmd": "./bin/sqlc-sql.js-gen"
+        "cmd": "./bin/sqlc-ts"
       }
     }
   ],

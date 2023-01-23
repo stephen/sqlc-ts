@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/stephen/sqlc-sql.js/internal/metadata"
-	"github.com/stephen/sqlc-sql.js/internal/plugin"
+	"github.com/stephen/sqlc-ts/internal/metadata"
+	"github.com/stephen/sqlc-ts/internal/plugin"
 )
 
 type QueryValue struct {

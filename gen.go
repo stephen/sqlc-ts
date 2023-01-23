@@ -7,8 +7,8 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
-	"github.com/stephen/sqlc-sql.js/internal/plugin"
-	"github.com/stephen/sqlc-sql.js/internal/sdk"
+	"github.com/stephen/sqlc-ts/internal/plugin"
+	"github.com/stephen/sqlc-ts/internal/sdk"
 )
 
 func Generate(req *plugin.CodeGenRequest) (*plugin.CodeGenResponse, error) {

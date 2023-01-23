@@ -1,6 +1,6 @@
 package sdk
 
-import "github.com/stephen/sqlc-sql.js/internal/plugin"
+import "github.com/stephen/sqlc-ts/internal/plugin"
 
 func DataType(n *plugin.Identifier) string {
 	if n.Schema != "" {

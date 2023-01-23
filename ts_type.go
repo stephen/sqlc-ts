@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/stephen/sqlc-sql.js/internal/plugin"
-	"github.com/stephen/sqlc-sql.js/internal/sdk"
+	"github.com/stephen/sqlc-ts/internal/plugin"
+	"github.com/stephen/sqlc-ts/internal/sdk"
 )
 
 func tsTypecheckTemplate(req *plugin.CodeGenRequest, col *plugin.Column) string {
