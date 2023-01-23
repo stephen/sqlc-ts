@@ -22,11 +22,9 @@ func buildStructs(req *plugin.CodeGenRequest) []Struct {
 				Comment: table.Comment,
 			}
 			for _, column := range table.Columns {
-				tags := map[string]string{}
 				s.Fields = append(s.Fields, Field{
 					Name:    FieldName(column.Name, req.Settings),
 					Type:    tsType(req, column),
-					Tags:    tags,
 					Comment: column.Comment,
 				})
 			}
@@ -212,12 +210,11 @@ func columnsToStruct(req *plugin.CodeGenRequest, name string, columns []column, 
 		if suffix > 0 {
 			fieldName = fmt.Sprintf("%s_%d", fieldName, suffix)
 		}
-		tags := map[string]string{}
 		gs.Fields = append(gs.Fields, Field{
-			Name:   fieldName,
-			DBName: colName,
-			Type:   tsType(req, c.Column),
-			Tags:   tags,
+			Name:              fieldName,
+			DBName:            colName,
+			Type:              tsType(req, c.Column),
+			TypecheckTemplate: tsTypecheckTemplate(req, c.Column),
 		})
 		if _, found := seen[baseFieldName]; !found {
 			seen[baseFieldName] = []int{i}

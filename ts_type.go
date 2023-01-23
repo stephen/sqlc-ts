@@ -9,6 +9,20 @@ import (
 	"github.com/stephen/sqlc-sql.js/internal/sdk"
 )
 
+func tsTypecheckTemplate(req *plugin.CodeGenRequest, col *plugin.Column) string {
+	typ := sqliteType(req, col)
+	cond := fmt.Sprintf(`typeof %% !== "%s"`, typ)
+	if !col.NotNull {
+		cond = fmt.Sprintf(`%s || %% !== null`, cond)
+	}
+
+	if col.IsArray {
+		cond = fmt.Sprintf(`!Array.isArray(%%) || %%.some(e => %s)`, strings.ReplaceAll(cond, "%%", "e"))
+	}
+
+	return cond
+}
+
 func tsType(req *plugin.CodeGenRequest, col *plugin.Column) string {
 	typ := sqliteType(req, col)
 	if !col.NotNull {

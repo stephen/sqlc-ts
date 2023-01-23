@@ -2,28 +2,19 @@ package main
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
 type Field struct {
-	Name    string // CamelCased name for Go
-	DBName  string // Name as used in the DB
-	Type    string
-	Tags    map[string]string
-	Comment string
+	Name              string // CamelCased name for Go
+	DBName            string // Name as used in the DB
+	Type              string
+	TypecheckTemplate string
+	Comment           string
 }
 
-func (gf Field) Tag() string {
-	tags := make([]string, 0, len(gf.Tags))
-	for key, val := range gf.Tags {
-		tags = append(tags, fmt.Sprintf("%s\"%s\"", key, val))
-	}
-	if len(tags) == 0 {
-		return ""
-	}
-	sort.Strings(tags)
-	return strings.Join(tags, " ")
+func (f Field) Typecheck(i int) string {
+	return strings.ReplaceAll(f.TypecheckTemplate, "%", fmt.Sprintf("row[%d]", i))
 }
 
 func SetCaseStyle(name string, style string) string {

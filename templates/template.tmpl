@@ -37,16 +37,19 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   }
 
   const queryResult = result[0];
-  if (!Array.isArray(queryResult.values) || queryResult.values.length !== 1) {
+  if (queryResult.values.length !== 1) {
     return null;
   }
 
   const columns = queryResult.columns;
   const row = queryResult.values[0];
-  const rv: Partial<{{.Ret.DefineType}}> = {};
-  for (const [i, col] of columns.entries()) {
-    rv[col] = row[i]
-  }
+  {{- range $i, $e := .Ret.UniqueFields}}
+  if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
+  {{- end}}
+  const rv: {{.Ret.DefineType}} = { {{- range $i, $e := .Ret.UniqueFields}}
+    {{$e.Name}}: row[{{$i}}],
+    {{- end}}
+  };
   return rv;
 }
 {{end}}
@@ -65,12 +68,14 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
 
   for (const row of queryResult.values) {
   const columns = queryResult.columns;
-    const rv: Partial<{{.Ret.DefineType}}> = {};
-    const row = queryResult.values[0];
-    for (const [i, col] of columns.entries()) {
-      rv[col] = row[i]
-    }
-    rvs.push(row);
+    {{- range $i, $e := .Ret.UniqueFields}}
+    if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
+    {{- end}}
+    const rv: {{.Ret.DefineType}} = { {{- range $i, $e := .Ret.UniqueFields}}
+      {{$e.Name}}: row[{{$i}}],
+      {{- end}}
+    };
+    rvs.push(rv);
   }
   return rvs;
 }
@@ -101,7 +106,7 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): number {
 {{range .Comments}}//{{.}}
 {{end -}}
 export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): QueryExecResult {
-  const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])[0]
+  const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}]);
   if (result.length !== 1) {
     throw new Error("expected exec() to return a single query result")
   }
