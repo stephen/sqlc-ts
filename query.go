@@ -31,7 +31,7 @@ func (v QueryValue) Pair() string {
 	if v.isEmpty() {
 		return ""
 	}
-	return v.Name + " " + v.DefineType()
+	return v.Name + ": " + v.DefineType()
 }
 
 func (v QueryValue) SlicePair() string {
@@ -88,7 +88,7 @@ func (v QueryValue) Params() string {
 		}
 	}
 	if len(out) <= 3 {
-		return strings.Join(out, ",")
+		return strings.Join(out, ", ")
 	}
 	out = append(out, "")
 	return "\n" + strings.Join(out, ",\n")

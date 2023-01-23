@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"github.com/stephen/sqlc-sql.js/internal/plugin"
 )
 
 type Field struct {
@@ -26,15 +24,6 @@ func (gf Field) Tag() string {
 	}
 	sort.Strings(tags)
 	return strings.Join(tags, " ")
-}
-
-func JSONTagName(name string, settings *plugin.Settings) string {
-	style := settings.Go.JsonTagsCaseStyle
-	if style == "" || style == "none" {
-		return name
-	} else {
-		return SetCaseStyle(name, style)
-	}
 }
 
 func SetCaseStyle(name string, style string) string {

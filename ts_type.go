@@ -57,6 +57,6 @@ func sqliteType(req *plugin.CodeGenRequest, col *plugin.Column) string {
 	default:
 		log.Printf("unknown SQLite type: %s\n", dt)
 		// XXX: is this right? or prefer any?
-		return "unknown"
+		return "my unknown"
 	}
 }

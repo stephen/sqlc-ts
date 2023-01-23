@@ -10,38 +10,6 @@ import (
 	"github.com/stephen/sqlc-sql.js/internal/sdk"
 )
 
-func buildEnums(req *plugin.CodeGenRequest) []Enum {
-	var enums []Enum
-	for _, schema := range req.Catalog.Schemas {
-		for _, enum := range schema.Enums {
-			var enumName string
-			enumName = enum.Name
-			e := Enum{
-				Name:    StructName(enumName, req.Settings),
-				Comment: enum.Comment,
-			}
-			seen := make(map[string]struct{}, len(enum.Vals))
-			for i, v := range enum.Vals {
-				value := EnumReplace(v)
-				if _, found := seen[value]; found || value == "" {
-					value = fmt.Sprintf("value_%d", i)
-				}
-				e.Constants = append(e.Constants, Constant{
-					Name:  StructName(enumName+"_"+value, req.Settings),
-					Value: v,
-					Type:  e.Name,
-				})
-				seen[value] = struct{}{}
-			}
-			enums = append(enums, e)
-		}
-	}
-	if len(enums) > 0 {
-		sort.Slice(enums, func(i, j int) bool { return enums[i].Name < enums[j].Name })
-	}
-	return enums
-}
-
 func buildStructs(req *plugin.CodeGenRequest) []Struct {
 	var structs []Struct
 	for _, schema := range req.Catalog.Schemas {
@@ -55,14 +23,8 @@ func buildStructs(req *plugin.CodeGenRequest) []Struct {
 			}
 			for _, column := range table.Columns {
 				tags := map[string]string{}
-				if req.Settings.Go.EmitDbTags {
-					tags["db:"] = column.Name
-				}
-				if req.Settings.Go.EmitJsonTags {
-					tags["json:"] = JSONTagName(column.Name, req.Settings)
-				}
 				s.Fields = append(s.Fields, Field{
-					Name:    StructName(column.Name, req.Settings),
+					Name:    FieldName(column.Name, req.Settings),
 					Type:    tsType(req, column),
 					Tags:    tags,
 					Comment: column.Comment,
@@ -87,12 +49,7 @@ func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error)
 			continue
 		}
 
-		var constantName string
-		if req.Settings.Go.EmitExportedQueries {
-			constantName = sdk.Title(query.Name)
-		} else {
-			constantName = sdk.LowerTitle(query.Name)
-		}
+		constantName := sdk.LowerTitle(query.Name)
 
 		gq := Query{
 			Cmd:          query.Cmd,
@@ -241,8 +198,7 @@ func columnsToStruct(req *plugin.CodeGenRequest, name string, columns []column, 
 	suffixes := map[int]int{}
 	for i, c := range columns {
 		colName := columnName(c.Column, i)
-		tagName := colName
-		fieldName := StructName(colName, req.Settings)
+		fieldName := FieldName(colName, req.Settings)
 		baseFieldName := fieldName
 		// Track suffixes by the ID of the column, so that columns referring to the same numbered parameter can be
 		// reused.
@@ -254,16 +210,9 @@ func columnsToStruct(req *plugin.CodeGenRequest, name string, columns []column, 
 		}
 		suffixes[c.id] = suffix
 		if suffix > 0 {
-			tagName = fmt.Sprintf("%s_%d", tagName, suffix)
 			fieldName = fmt.Sprintf("%s_%d", fieldName, suffix)
 		}
 		tags := map[string]string{}
-		if req.Settings.Go.EmitDbTags {
-			tags["db:"] = tagName
-		}
-		if req.Settings.Go.EmitJsonTags {
-			tags["json:"] = JSONTagName(tagName, req.Settings)
-		}
 		gs.Fields = append(gs.Fields, Field{
 			Name:   fieldName,
 			DBName: colName,

@@ -12,18 +12,16 @@ import (
 )
 
 func Generate(req *plugin.CodeGenRequest) (*plugin.CodeGenResponse, error) {
-	enums := buildEnums(req)
 	structs := buildStructs(req)
 	queries, err := buildQueries(req, structs)
 	if err != nil {
 		return nil, errors.Errorf("error generating queries: %w", err)
 	}
-	return generate(req, enums, structs, queries)
+	return generate(req, structs, queries)
 }
 
 type tmplCtx struct {
 	Q       string
-	Enums   []Enum
 	Structs []Struct
 	Queries []Query
 
@@ -35,20 +33,12 @@ func (t *tmplCtx) OutputQuery(sourceName string) bool {
 	return t.SourceName == sourceName
 }
 
-func generate(req *plugin.CodeGenRequest, enums []Enum, structs []Struct, queries []Query) (*plugin.CodeGenResponse, error) {
-	// i := &importer{
-	// 	Settings: req.Settings,
-	// 	Queries:  queries,
-	// 	Enums:    enums,
-	// 	Structs:  structs,
-	// }
-
+func generate(req *plugin.CodeGenRequest, structs []Struct, queries []Query) (*plugin.CodeGenResponse, error) {
 	funcMap := template.FuncMap{
 		"lowerTitle": sdk.LowerTitle,
 		"comment":    sdk.DoubleSlashComment,
 		"escape":     sdk.EscapeBacktick,
-		// "imports":    i.Imports,
-		"hasPrefix": strings.HasPrefix,
+		"hasPrefix":  strings.HasPrefix,
 	}
 
 	tmpl := template.Must(
@@ -63,7 +53,6 @@ func generate(req *plugin.CodeGenRequest, enums []Enum, structs []Struct, querie
 	tctx := tmplCtx{
 		Q:       "`",
 		Queries: queries,
-		Enums:   enums,
 		Structs: structs,
 	}
 

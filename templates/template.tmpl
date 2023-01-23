@@ -9,18 +9,18 @@
 {{if $.OutputQuery .SourceName}}
 const {{.ConstantName}} = {{$.Q}}-- name: {{.MethodName}} {{.Cmd}}
 {{escape .SQL}}
-{{$.Q}}
+{{$.Q}};
 
 {{if .Arg.EmitStruct}}
-type {{.Arg.Type}} struct { {{- range .Arg.UniqueFields}}
-  {{.Name}} {{.Type}}
+export type {{.Arg.Type}} = { {{- range .Arg.UniqueFields}}
+  {{.Name}}: {{.Type}};
   {{- end}}
 }
 {{end}}
 
 {{if .Ret.EmitStruct}}
-type {{.Ret.Type}} struct { {{- range .Ret.Struct.Fields}}
-  {{.Name}} {{.Type}} {{if or ($.EmitJSONTags) ($.EmitDBTags)}}{{$.Q}}{{.Tag}}{{$.Q}}{{end}}
+export type {{.Ret.Type}} = { {{- range .Ret.Struct.Fields}}
+  {{.Name}}: {{.Type}};
   {{- end}}
 }
 {{end}}
@@ -28,69 +28,74 @@ type {{.Ret.Type}} struct { {{- range .Ret.Struct.Fields}}
 {{if eq .Cmd ":one"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-func (q *Queries) {{.MethodName}}(ctx context.Context, {{.Arg.Pair}}) ({{.Ret.DefineType}}, error) {
-	row := q.db.QueryRowContext(ctx, {{.ConstantName}}, {{.Arg.Params}})
-	{{- if ne .Arg.Pair .Ret.Pair }}
-	var {{.Ret.Name}} {{.Ret.Type}}
-	{{- end}}
-	err := row.Scan({{.Ret.Scan}})
-	return {{.Ret.ReturnName}}, err
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}} | null {
+  const result = db.exec({{.ConstantName}}, [id])
+  if (!Array.isArray(result) || result.length !== 1) {
+    throw new Error("expected exec() to return a query result")
+  }
+
+  const queryResult = result[0];
+  if (!Array.isArray(queryResult.values) || queryResult.values.length !== 1) {
+    return null;
+  }
+
+  const columns = queryResult.columns;
+  const row = queryResult.values[0];
+  const rv: Partial<{{.Ret.DefineType}}> = {};
+  for (const [i, col] of columns.entries()) {
+    rv[col] = row[i]
+  }
+  return rv;
 }
 {{end}}
 
 {{if eq .Cmd ":many"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-func (q *Queries) {{.MethodName}}(ctx context.Context, {{.Arg.Pair}}) ([]{{.Ret.DefineType}}, error) {
-    rows, err := q.query(ctx, q.{{.FieldName}}, {{.ConstantName}}, {{.Arg.Params}})
-    if err != nil {
-        return nil, err
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}}[] {
+  const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])
+  if (!Array.isArray(result) || result.length !== 1) {
+    throw new Error("expected exec() to return a query result")
+  }
+
+  const queryResult = result[0];
+  const rvs: {{.Ret.DefineType}}[] = [];
+
+  for (const row of queryResult.values) {
+  const columns = queryResult.columns;
+    const rv: Partial<{{.Ret.DefineType}}> = {};
+    const row = queryResult.values[0];
+    for (const [i, col] of columns.entries()) {
+      rv[col] = row[i]
     }
-    defer rows.Close()
-    var items []{{.Ret.DefineType}}
-    for rows.Next() {
-        var {{.Ret.Name}} {{.Ret.Type}}
-        if err := rows.Scan({{.Ret.Scan}}); err != nil {
-            return nil, err
-        }
-        items = append(items, {{.Ret.ReturnName}})
-    }
-    if err := rows.Close(); err != nil {
-        return nil, err
-    }
-    if err := rows.Err(); err != nil {
-        return nil, err
-    }
-    return items, nil
+    rvs.push(row);
+  }
+  return rvs;
 }
 {{end}}
 
 {{if eq .Cmd ":exec"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-func (q *Queries) {{.MethodName}}(ctx context.Context, {{.Arg.Pair}}) error {
-    _, err := q.db.ExecContext(ctx, {{.ConstantName}}, {{.Arg.Params}})
-    return err
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): void {
+ db.exec({{.ConstantName}}, [{{.Arg.Params}}])
 }
 {{end}}
 
 {{if eq .Cmd ":execrows"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-func (q *Queries) {{.MethodName}}(ctx context.Context, {{.Arg.Pair}}) (int64, error) {
-    result, err := q.db.ExecContext(ctx, {{.ConstantName}}, {{.Arg.Params}})
-    if err != nil {
-        return 0, err
-    }
-    return result.RowsAffected()
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): number {
+  const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])
+  return result[0].values.length;
 }
 {{end}}
 
 {{if eq .Cmd ":execresult"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-func (q *Queries) {{.MethodName}}(ctx context.Context, {{.Arg.Pair}}) (sql.Result, error) {
-    return q.db.ExecContext(ctx, {{.ConstantName}}, {{.Arg.Params}})
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): QueryExecResult {
+  return db.exec({{.ConstantName}}, [{{.Arg.Params}}])
 }
 {{end}}
 
