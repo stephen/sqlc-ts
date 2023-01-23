@@ -34,11 +34,11 @@ func FieldName(name string, settings *plugin.Settings) string {
 		return rename
 	}
 	out := ""
-	for _, p := range strings.Split(name, "_") {
-		if p == "id" {
-			out += p
-		} else {
+	for i, p := range strings.Split(name, "_") {
+		if i == 0 {
 			out += sdk.LowerTitle(p)
+		} else {
+			out += sdk.Title(p)
 		}
 	}
 	return out
