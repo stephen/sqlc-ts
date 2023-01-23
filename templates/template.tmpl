@@ -41,7 +41,6 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
     return null;
   }
 
-  const columns = queryResult.columns;
   const row = queryResult.values[0];
   {{- range $i, $e := .Ret.UniqueFields}}
   if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
@@ -67,7 +66,6 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   const rvs: {{.Ret.DefineType}}[] = [];
 
   for (const row of queryResult.values) {
-  const columns = queryResult.columns;
     {{- range $i, $e := .Ret.UniqueFields}}
     if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
     {{- end}}
