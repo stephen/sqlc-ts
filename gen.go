@@ -86,12 +86,6 @@ func generate(req *plugin.CodeGenRequest, enums []Enum, structs []Struct, querie
 		return nil
 	}
 
-	modelsFileName := "models.go"
-
-	if err := execute(modelsFileName, "modelsFile"); err != nil {
-		return nil, err
-	}
-
 	files := map[string]struct{}{}
 	for _, gq := range queries {
 		files[gq.SourceName] = struct{}{}
