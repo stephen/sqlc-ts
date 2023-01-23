@@ -12,7 +12,7 @@ import (
 func tsType(req *plugin.CodeGenRequest, col *plugin.Column) string {
 	typ := sqliteType(req, col)
 	if !col.NotNull {
-		typ = fmt.Sprintf("(%s | null)", typ)
+		typ = fmt.Sprintf("%s | null", typ)
 	}
 
 	if col.IsArray {
