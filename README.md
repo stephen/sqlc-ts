@@ -7,7 +7,8 @@ This plugin is early-stage and is not quite production ready.
 ## Installation & Usage
 
 ```bash
-$ go install github.com/kyleconroy/sqlc/cmd/@latest
+$ go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
+$ go install github.com/stephen/sqlc-ts@latest
 ```
 
 ```json5
