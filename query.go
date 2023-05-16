@@ -13,6 +13,13 @@ type QueryValue struct {
 	Name   string
 	Struct *Struct
 	Typ    string
+
+	// TypecheckTemplate is currently only set for return values.
+	TypecheckTemplate string
+}
+
+func (v QueryValue) Typecheck() string {
+	return strings.ReplaceAll(v.TypecheckTemplate, "%", "row[0]")
 }
 
 func (v QueryValue) EmitStruct() bool {

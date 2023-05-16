@@ -92,8 +92,9 @@ func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error)
 				name = strings.Replace(name, "$", "_", -1)
 			}
 			gq.Ret = QueryValue{
-				Name: name,
-				Typ:  tsType(req, c),
+				Name:              name,
+				Typ:               tsType(req, c),
+				TypecheckTemplate: tsTypecheckTemplate(req, c),
 			}
 		} else if len(query.Columns) > 1 {
 			var gs *Struct

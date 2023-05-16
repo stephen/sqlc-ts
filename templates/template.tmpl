@@ -51,6 +51,7 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
     {{- end}}
   };
   {{else}}
+  if ({{.Ret.Typecheck}}) { throw new Error(`expected type {{.Ret.Typ}} for column {{.Ret.Name}}, but got ${typeof row[0]}`) };
   const rv: {{.Ret.Typ}} = row[0];
   {{end}}
   return rv;
@@ -79,6 +80,7 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
       {{- end}}
     };
     {{else}}
+    if ({{.Ret.Typecheck}}) { throw new Error(`expected type {{.Ret.Typ}} for column {{.Ret.Name}}, but got ${typeof row[0]}`) };
     const rv: {{.Ret.Typ}} = row[0];
     {{end}}
     rvs.push(rv);
