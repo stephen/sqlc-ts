@@ -16,3 +16,6 @@ INSERT INTO authors (
 /* name: DeleteAuthor :exec */
 DELETE FROM authors
 WHERE id = ?;
+
+/* name: SearchAuthorsByName :many */
+select id from authors where name like '%' || @text || '%';

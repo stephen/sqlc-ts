@@ -42,6 +42,7 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   }
 
   const row = queryResult.values[0];
+  {{if .Ret.EmitStruct}}
   {{- range $i, $e := .Ret.UniqueFields}}
   if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
   {{- end}}
@@ -49,6 +50,9 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
     {{$e.Name}}: row[{{$i}}],
     {{- end}}
   };
+  {{else}}
+  const rv: {{.Ret.Typ}} = row[0];
+  {{end}}
   return rv;
 }
 {{end}}
@@ -66,6 +70,7 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   const rvs: {{.Ret.DefineType}}[] = [];
 
   for (const row of queryResult.values) {
+    {{if .Ret.EmitStruct}}
     {{- range $i, $e := .Ret.UniqueFields}}
     if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
     {{- end}}
@@ -73,6 +78,9 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
       {{$e.Name}}: row[{{$i}}],
       {{- end}}
     };
+    {{else}}
+    const rv: {{.Ret.Typ}} = row[0];
+    {{end}}
     rvs.push(rv);
   }
   return rvs;
