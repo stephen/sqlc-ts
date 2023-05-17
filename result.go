@@ -73,7 +73,7 @@ func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error)
 					Column: p.Column,
 				})
 			}
-			s, err := columnsToStruct(req, gq.MethodName+"Params", cols, false)
+			s, err := columnsToStruct(req, sdk.Title(gq.MethodName)+"Params", cols, false)
 			if err != nil {
 				return nil, err
 			}
@@ -128,7 +128,7 @@ func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error)
 					})
 				}
 				var err error
-				gs, err = columnsToStruct(req, gq.MethodName+"Row", columns, true)
+				gs, err = columnsToStruct(req, sdk.Title(gq.MethodName)+"Row", columns, true)
 				if err != nil {
 					return nil, err
 				}
