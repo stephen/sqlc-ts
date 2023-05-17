@@ -133,7 +133,6 @@ type Query struct {
 	Cmd          string
 	Comments     []string
 	MethodName   string
-	FieldName    string
 	ConstantName string
 	SQL          string
 	SourceName   string

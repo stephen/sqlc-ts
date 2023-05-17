@@ -47,13 +47,12 @@ func buildQueries(req *plugin.CodeGenRequest, structs []Struct) ([]Query, error)
 			continue
 		}
 
-		constantName := sdk.LowerTitle(query.Name)
+		name := sdk.LowerTitle(query.Name)
 
 		gq := Query{
 			Cmd:          query.Cmd,
-			ConstantName: constantName,
-			FieldName:    sdk.LowerTitle(query.Name) + "Stmt",
-			MethodName:   query.Name,
+			ConstantName: name + "Stmt",
+			MethodName:   name,
 			SourceName:   query.Filename,
 			SQL:          query.Text,
 			Comments:     query.Comments,
