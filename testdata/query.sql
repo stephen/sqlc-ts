@@ -19,3 +19,6 @@ WHERE id = ?;
 
 /* name: SearchAuthorsByName :many */
 select id from authors where name like '%' || @text || '%';
+
+/* name: SearchAuthorsByNameWithUnknown :many */
+select cast(id as INTEGER) from authors where name like '%' || @text || '%';

@@ -18,6 +18,10 @@ type QueryValue struct {
 	TypecheckTemplate string
 }
 
+func (v QueryValue) HasTypecheck() bool {
+	return v.TypecheckTemplate == ""
+}
+
 func (v QueryValue) Typecheck() string {
 	return strings.ReplaceAll(v.TypecheckTemplate, "%", "row[0]")
 }

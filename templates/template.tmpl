@@ -44,15 +44,19 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   const row = queryResult.values[0];
   {{if .Ret.EmitStruct}}
   {{- range $i, $e := .Ret.UniqueFields}}
+  {{if not $e.HasTypecheck}}
   if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
+  {{end}}
   {{- end}}
   const rv: {{.Ret.DefineType}} = { {{- range $i, $e := .Ret.UniqueFields}}
     {{$e.Name}}: row[{{$i}}],
     {{- end}}
   };
   {{else}}
+  {{if not .Ret.HasTypecheck}}
   if ({{.Ret.Typecheck}}) { throw new Error(`expected type {{.Ret.Typ}} for column {{.Ret.Name}}, but got ${typeof row[0]}`) };
   const rv: {{.Ret.Typ}} = row[0];
+  {{end}}
   {{end}}
   return rv;
 }
@@ -73,14 +77,18 @@ export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}
   for (const row of queryResult.values) {
     {{if .Ret.EmitStruct}}
     {{- range $i, $e := .Ret.UniqueFields}}
+    {{if not $e.HasTypecheck}}
     if ({{$e.Typecheck $i}}) { throw new Error(`expected type {{$e.Type}} for column {{$e.Name}}, but got ${typeof row[{{$i}}]}`) };
+    {{end}}
     {{- end}}
     const rv: {{.Ret.DefineType}} = { {{- range $i, $e := .Ret.UniqueFields}}
       {{$e.Name}}: row[{{$i}}],
       {{- end}}
     };
     {{else}}
+    {{if not .Ret.HasTypecheck}}
     if ({{.Ret.Typecheck}}) { throw new Error(`expected type {{.Ret.Typ}} for column {{.Ret.Name}}, but got ${typeof row[0]}`) };
+    {{end}}
     const rv: {{.Ret.Typ}} = row[0];
     {{end}}
     rvs.push(rv);

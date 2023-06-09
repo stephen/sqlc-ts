@@ -11,6 +11,10 @@ import (
 
 func tsTypecheckTemplate(req *plugin.CodeGenRequest, col *plugin.Column) string {
 	typ := sqliteType(req, col)
+	if typ == "unknown" {
+		return ""
+	}
+
 	cond := fmt.Sprintf(`typeof %% !== "%s"`, typ)
 	if !col.NotNull {
 		cond = fmt.Sprintf(`%s && %% !== null`, cond)
@@ -25,6 +29,10 @@ func tsTypecheckTemplate(req *plugin.CodeGenRequest, col *plugin.Column) string 
 
 func tsType(req *plugin.CodeGenRequest, col *plugin.Column) string {
 	typ := sqliteType(req, col)
+	if typ == "unknown" {
+		return typ
+	}
+
 	if !col.NotNull {
 		typ = fmt.Sprintf("%s | null", typ)
 	}

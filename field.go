@@ -13,6 +13,10 @@ type Field struct {
 	Comment           string
 }
 
+func (f Field) HasTypecheck() bool {
+	return f.TypecheckTemplate == ""
+}
+
 func (f Field) Typecheck(i int) string {
 	return strings.ReplaceAll(f.TypecheckTemplate, "%", fmt.Sprintf("row[%d]", i))
 }
