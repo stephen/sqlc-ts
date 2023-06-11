@@ -30,7 +30,7 @@ export type {{.Ret.Type}} = { {{- range .Ret.Struct.Fields}}
 {{if eq .Cmd ":one"}}
 {{range .Comments}}//{{.}}
 {{end -}}
-export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}} {
+export function {{.MethodName}}(db: Database, {{.Arg.Pair}}): {{.Ret.DefineType}} | null {
   const result = db.exec({{.ConstantName}}, [{{.Arg.Params}}])
   if (result.length !== 1) {
     throw new Error("expected exec() to return a single query result")
