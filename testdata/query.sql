@@ -22,3 +22,6 @@ select id from authors where name like '%' || @text || '%';
 
 /* name: SearchAuthorsByNameWithUnknown :many */
 select cast(id as INTEGER) from authors where name like '%' || @text || '%';
+
+/* name: CountAuthors :one */
+select count(1) from authors;
